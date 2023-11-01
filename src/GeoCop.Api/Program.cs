@@ -1,32 +1,61 @@
 ﻿using Asp.Versioning;
+using GeoCop.Api.StacServices;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace GeoCop.Api;
 
-builder.Services.AddControllers();
-
-builder.Services.AddApiVersioning(config =>
+internal class Program
 {
-    config.AssumeDefaultVersionWhenUnspecified = true;
-    config.DefaultApiVersion = new ApiVersion(1, 0);
-    config.ReportApiVersions = true;
-    config.ApiVersionReader = new HeaderApiVersionReader("api-version");
-});
+    private static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+        // TODO: Only add for STAC Browser
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("All",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                    });
+        });
 
-var app = builder.Build();
+        builder.Services.AddControllers();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
+        builder.Services.AddSingleton<Context>();
+
+        builder.Services.AddStacData(builder =>
+        {
+        });
+
+        builder.Services.AddApiVersioning(config =>
+        {
+            config.AssumeDefaultVersionWhenUnspecified = true;
+            config.DefaultApiVersion = new ApiVersion(1, 0);
+            config.ReportApiVersions = true;
+            config.ApiVersionReader = new HeaderApiVersionReader("api-version");
+        });
+
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        var app = builder.Build();
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
+        }
+
+        app.UseHttpsRedirection();
+
+        app.UseAuthorization();
+
+        app.UseCors("All");
+
+        app.MapControllers();
+
+        app.Run();
+    }
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
