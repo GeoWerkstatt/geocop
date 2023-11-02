@@ -31,7 +31,7 @@ namespace GeoCop.Api.StacServices
         /// <inheritdoc/>
         public Task<StacItem> GetItemByIdAsync(string featureId, IStacApiContext stacApiContext, CancellationToken cancellationToken)
         {
-            return Task.FromResult(Context.Items[featureId]);
+            throw new NotImplementedException(); // return Task.FromResult(Context.Items[featureId]);
         }
 
         /// <inheritdoc/>
@@ -43,7 +43,7 @@ namespace GeoCop.Api.StacServices
         /// <inheritdoc/>
         public Task<IEnumerable<StacItem>> GetItemsAsync(IStacApiContext stacApiContext, CancellationToken cancellationToken)
         {
-            return Task.FromResult<IEnumerable<StacItem>>(Context.Items.Values);
+            throw new NotImplementedException(); // return Task.FromResult<IEnumerable<StacItem>>(Context.Items.Values);
         }
     }
 }

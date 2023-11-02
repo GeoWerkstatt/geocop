@@ -35,8 +35,8 @@ namespace GeoCop.Api
         }
 
         public Dictionary<string, StacCollection> Collections { get; private set; } = new Dictionary<string, StacCollection>();
-        public Dictionary<string, StacItem> Items { get; private set; } = new Dictionary<string, StacItem>();
 
+        // public Dictionary<string, StacItem> Items { get; private set; } = new Dictionary<string, StacItem>();
         private List<Models.File> GetFiles()
         {
             ContentType ct = new ContentType();
@@ -53,7 +53,7 @@ namespace GeoCop.Api
             return Enumerable.Range(1, 2).Select(SeededFile).ToList();
         }
 
-        private List<Delivery> GetDeliveries(string collectionId, IGeometryObject geometry)
+        private List<Delivery> GetDeliveries()
         {
             var deliveryIds = 1;
             Random random = new Random();
@@ -67,12 +67,13 @@ namespace GeoCop.Api
                 .RuleFor(c => c.Files, f => GetFiles());
             Delivery SeededDelivery(int seed) => fakeDeliveries.UseSeed(seed).Generate();
             var deliveries = deliveryRange.Select(SeededDelivery).ToList();
-            deliveries.ForEach(d =>
-            {
-                var item = d.ConvertToStacItem(collectionId, geometry);
-                if (!Items.ContainsKey(item.Id))
-                    Items.Add(item.Id, item);
-            });
+
+            // deliveries.ForEach(d =>
+            // {
+            //    var item = d.ConvertToStacItem(collectionId, geometry);
+            //    if (!Items.ContainsKey(item.Id))
+            //        Items.Add(item.Id, item);
+            // });
             return deliveries;
         }
 
@@ -85,15 +86,15 @@ namespace GeoCop.Api
                 .RuleFor(c => c.Id, f => operatIds++)
                 .RuleFor(c => c.Name, f => f.Random.Word())
                 .RuleFor(c => c.Description, f => f.Random.Words())
-                .RuleFor(c => c.Deliveries, f => new List<Delivery>())
+                .RuleFor(c => c.Deliveries, f => GetDeliveries())
                 .RuleFor(c => c.Extent, f => new Extent { XMin = 5.96F, YMin = 45.82F, XMax = 10.49F, YMax = 47.81F });
             Operat SeededOperat(int seed) => fakeOperats.UseSeed(seed).Generate();
             var operats = operatRange.Select(SeededOperat).ToList();
             operats.ForEach(o =>
             {
+                // o.Deliveries = GetDeliveries(collection.Id, o.Extent.AsGeometry());
                 var collection = o.ConvertToStacCollection();
                 Collections.Add(collection.Id, collection);
-                o.Deliveries = GetDeliveries(collection.Id, o.Extent.AsGeometry());
             });
             return operats;
         }
