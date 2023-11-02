@@ -25,13 +25,37 @@ namespace GeoCop.Api.StacServices
         /// <inheritdoc/>
         public bool AnyItemsExist(IEnumerable<StacItem> items, IStacApiContext stacApiContext)
         {
-            throw new NotImplementedException();
+            foreach (var collection in stacApiContext.Collections)
+            {
+                try
+                {
+                    if (Context.Collections[collection].GetItemLinks().Any())
+                    {
+                        return true;
+                    }
+                }
+                catch (IOException)
+                {
+                    return false;
+                }
+            }
+
+            return false;
         }
 
         /// <inheritdoc/>
         public Task<StacItem> GetItemByIdAsync(string featureId, IStacApiContext stacApiContext, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException(); // return Task.FromResult(Context.Items[featureId]);
+            try
+            {
+                var collection = Context.Collections[stacApiContext.Collections.First()];
+                var link = (StacObjectLink)collection.GetItemLinks().Where(link => link.Uri.ToString().Split("/").Last() == featureId).First();
+                return Task.FromResult((StacItem)link.StacObject);
+            }
+            catch (IOException)
+            {
+                return Task.FromResult<StacItem>(null);
+            }
         }
 
         /// <inheritdoc/>
@@ -43,7 +67,25 @@ namespace GeoCop.Api.StacServices
         /// <inheritdoc/>
         public Task<IEnumerable<StacItem>> GetItemsAsync(IStacApiContext stacApiContext, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException(); // return Task.FromResult<IEnumerable<StacItem>>(Context.Items.Values);
+            IEnumerable<StacItem> items = new List<StacItem>();
+
+            var collectionIds = stacApiContext.Collections?.ToList();
+            if (collectionIds == null || !collectionIds.Any())
+            {
+                Context.Collections.Values.ToList().ForEach(c =>
+                {
+                    items = items.Concat(c.GetItemLinks().Select(l => (StacItem)((StacObjectLink)l).StacObject));
+                });
+            }
+            else
+            {
+                collectionIds.ForEach(collectionId =>
+                {
+                    items = items.Concat(Context.Collections[collectionId].GetItemLinks().Select(l => (StacItem)((StacObjectLink)l).StacObject));
+                });
+            }
+
+            return Task.FromResult(items);
         }
     }
 }
