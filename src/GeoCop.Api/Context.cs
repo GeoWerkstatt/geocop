@@ -1,8 +1,5 @@
 ﻿using Bogus;
-using Bogus.DataSets;
 using GeoCop.Api.Models;
-using GeoJSON.Net.Geometry;
-using Multiformats.Hash.Algorithms;
 using Stac;
 using System.Net.Mime;
 
@@ -15,33 +12,19 @@ namespace GeoCop.Api
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-        private List<Operat> operats = new List<Operat>();
-        public List<Operat> Operats
-        {
-            get
-            {
-                if (operats.Count == 0)
-                {
-                    operats = GetOperats();
-                }
-
-                return operats;
-            }
-        }
-
         public Context()
         {
             GetOperats();
         }
 
         public Dictionary<string, StacCollection> Collections { get; private set; } = new Dictionary<string, StacCollection>();
-
+        
         // public Dictionary<string, StacItem> Items { get; private set; } = new Dictionary<string, StacItem>();
         private List<Models.File> GetFiles()
         {
             ContentType ct = new ContentType();
             ct.MediaType = MediaTypeNames.Text.Plain;
-            var fileIds = 1;
+            var fileIds = 0;
             var fakeFiles = new Faker<Models.File>()
                 .StrictMode(true)
                 .RuleFor(c => c.Id, f => fileIds++)
@@ -57,23 +40,16 @@ namespace GeoCop.Api
         {
             var deliveryIds = 1;
             Random random = new Random();
-            var deliveryRange = Enumerable.Range(deliveryIds, random.Next(10));
+            var deliveryRange = Enumerable.Range(deliveryIds, random.Next(1, 10));
             var fakeDeliveries = new Faker<Delivery>()
                 .StrictMode(true)
-                .RuleFor(c => c.Id, f => deliveryIds++)
+                .RuleFor(c => c.Id, f => random.Next(1000) + deliveryIds++)
                 .RuleFor(c => c.Name, f => f.Random.Word())
                 .RuleFor(c => c.Description, f => f.Random.Words())
                 .RuleFor(c => c.UploadDate, f => f.Date.Past())
                 .RuleFor(c => c.Files, f => GetFiles());
             Delivery SeededDelivery(int seed) => fakeDeliveries.UseSeed(seed).Generate();
             var deliveries = deliveryRange.Select(SeededDelivery).ToList();
-
-            // deliveries.ForEach(d =>
-            // {
-            //    var item = d.ConvertToStacItem(collectionId, geometry);
-            //    if (!Items.ContainsKey(item.Id))
-            //        Items.Add(item.Id, item);
-            // });
             return deliveries;
         }
 
@@ -92,7 +68,6 @@ namespace GeoCop.Api
             var operats = operatRange.Select(SeededOperat).ToList();
             operats.ForEach(o =>
             {
-                // o.Deliveries = GetDeliveries(collection.Id, o.Extent.AsGeometry());
                 var collection = o.ConvertToStacCollection();
                 Collections.Add(collection.Id, collection);
             });
