@@ -1,7 +1,9 @@
-﻿using Stac;
+﻿using Itenso.TimePeriod;
+using Stac;
 using Stac.Collection;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Linq;
 using static Stac.Api.Interfaces.ILinkValues;
 
 namespace GeoCop.Api.Models
@@ -25,11 +27,16 @@ namespace GeoCop.Api.Models
             var stacId = Name + "_" + Id;
             var items = Deliveries.Select(d => d.ConvertToStacItem(stacId, Extent.AsGeometry())).ToDictionary(i => i.Links.First(l => l.RelationshipType == "Self").Uri);
 
-            // var links = new List<StacLink>() { new StacLink(new Uri("http://localhost:5000/collections/" + stacId), LinkRelationType.Self.ToString(), stacId, "application/json") };
-            var extent = new StacExtent(new StacSpatialExtent(Extent.XMin, Extent.YMin, Extent.XMax, Extent.YMax), new StacTemporalExtent(DateTime.Parse("2018-01-01T00:00:00Z", CultureInfo.InvariantCulture).ToUniversalTime(), DateTime.Now.ToUniversalTime()));
-            var collection = new StacCollection(stacId, Description, extent, null, null);
-            StacCollection.Create(stacId, Description, items, null, new Uri("http://localhost:5000/collections/" + stacId));
-            return collection;
+            if (items.Values.Count == 0)
+            {
+                var extent = new StacExtent(new StacSpatialExtent(Extent.XMin, Extent.YMin, Extent.XMax, Extent.YMax), new StacTemporalExtent(DateTime.Parse("2018-01-01T00:00:00Z", CultureInfo.InvariantCulture).ToUniversalTime(), DateTime.Now.ToUniversalTime()));
+                return new StacCollection(stacId, Description, extent, null, null);
+            }
+            else
+            {
+                var collection = StacCollection.Create(stacId, Description, items);
+                return collection;
+            }
         }
     }
 
