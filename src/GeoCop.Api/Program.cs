@@ -23,11 +23,7 @@ internal class Program
 
         builder.Services.AddControllers();
 
-        builder.Services.AddSingleton<Context>();
-
-        builder.Services.AddStacData(builder =>
-        {
-        });
+        builder.Services.AddStacData(builder => { });
 
         builder.Services.AddApiVersioning(config =>
         {

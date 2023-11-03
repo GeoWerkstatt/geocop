@@ -16,10 +16,10 @@ namespace GeoCop.Api.Models
         public List<FileRole> Roles { get; set; }
         public ContentType ContentType { get; set; }
 
-        public StacAsset ConvertToStacAsset(IStacObject parent)
-        {
-            return new StacAsset(parent, new Uri(Path), Roles.Select(r => r.ToString()), Name, ContentType);
-        }
+        // public StacAsset ConvertToStacAsset(IStacObject parent)
+        // {
+        //     return new StacAsset(parent, new Uri(Path), Roles.Select(r => r.ToString()), Name, ContentType);
+        // }
     }
 
     public enum FileRole

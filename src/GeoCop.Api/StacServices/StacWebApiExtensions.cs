@@ -24,12 +24,7 @@ namespace GeoCop.Api.StacServices
         {
             services.AddStacWebApi();
 
-            // Add the stac data services
-            services.AddSingleton<IDataServicesProvider, StacDataServicesProvider>();
-            services.AddSingleton<IRootCatalogProvider, StacRootCatalogProvider>();
-            services.AddSingleton<ICollectionsProvider, StacCollectionsProvider>();
-            services.AddSingleton<IItemsProvider, StacItemsProvider>();
-            services.AddSingleton<IItemsBroker, StacItemsBroker>();
+
 
             // Add the Http Stac Api context factory
             services.AddSingleton<IStacApiContextFactory, HttpStacApiContextFactory>();
@@ -54,6 +49,18 @@ namespace GeoCop.Api.StacServices
 
             // Add the default extensions
             services.AddDefaultStacApiExtensions();
+
+            // Add converters to create Stac Objects
+            services.AddSingleton<StacConverter>();
+
+            services.AddSingleton<Context>();
+
+            // Add the stac data services
+            services.AddSingleton<IDataServicesProvider, StacDataServicesProvider>();
+            services.AddSingleton<IRootCatalogProvider, StacRootCatalogProvider>();
+            services.AddSingleton<ICollectionsProvider, StacCollectionsProvider>();
+            services.AddSingleton<IItemsProvider, StacItemsProvider>();
+            services.AddSingleton<IItemsBroker, StacItemsBroker>();
 
             // Let's Configure
             var builder = new StacWebApiBuilder(services);

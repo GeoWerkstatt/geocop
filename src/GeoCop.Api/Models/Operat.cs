@@ -22,22 +22,22 @@ namespace GeoCop.Api.Models
         public Extent Extent { get; set; }
         public List<Delivery> Deliveries { get; set; } = new List<Delivery>();
 
-        public StacCollection ConvertToStacCollection()
-        {
-            var stacId = Name + "_" + Id;
-            var items = Deliveries.Select(d => d.ConvertToStacItem(stacId, Extent.AsGeometry())).ToDictionary(i => i.Links.First(l => l.RelationshipType == "Self").Uri);
+        // public StacCollection ConvertToStacCollection()
+        // {
+        //     var stacId = Name + "_" + Id;
+        //     var items = Deliveries.Select(d => d.ConvertToStacItem(stacId, Extent.AsGeometry())).ToDictionary(i => i.Links.First(l => l.RelationshipType == "Self").Uri);
 
-            if (items.Values.Count == 0)
-            {
-                var extent = new StacExtent(new StacSpatialExtent(Extent.XMin, Extent.YMin, Extent.XMax, Extent.YMax), new StacTemporalExtent(DateTime.Parse("2018-01-01T00:00:00Z", CultureInfo.InvariantCulture).ToUniversalTime(), DateTime.Now.ToUniversalTime()));
-                return new StacCollection(stacId, Description, extent, null, null);
-            }
-            else
-            {
-                var collection = StacCollection.Create(stacId, Description, items);
-                return collection;
-            }
-        }
+        //     if (items.Values.Count == 0)
+        //     {
+        //         var extent = new StacExtent(new StacSpatialExtent(Extent.XMin, Extent.YMin, Extent.XMax, Extent.YMax), new StacTemporalExtent(DateTime.Parse("2018-01-01T00:00:00Z", CultureInfo.InvariantCulture).ToUniversalTime(), DateTime.Now.ToUniversalTime()));
+        //         return new StacCollection(stacId, Description, extent, null, null);
+        //     }
+        //     else
+        //     {
+        //         var collection = StacCollection.Create(stacId, Description, items);
+        //         return collection;
+        //     }
+        // }
     }
 
     public class Extent
@@ -61,6 +61,11 @@ namespace GeoCop.Api.Models
                 }),
             });
             return polygon;
+        }
+
+        public static Extent GetDefault()
+        {
+            return new Extent { XMin = 5.96F, YMin = 45.82F, XMax = 10.49F, YMax = 47.81F };
         }
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

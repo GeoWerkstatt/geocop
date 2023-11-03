@@ -1,5 +1,6 @@
 ﻿using Bogus;
 using GeoCop.Api.Models;
+using GeoCop.Api.StacServices;
 using Stac;
 using System.Net.Mime;
 
@@ -12,13 +13,16 @@ namespace GeoCop.Api
     {
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
-        public Context()
+        public Context(StacConverter stacConverter)
         {
+            StacConverter = stacConverter;
             GetOperats();
         }
 
+        private StacConverter StacConverter { get; }
+
         public Dictionary<string, StacCollection> Collections { get; private set; } = new Dictionary<string, StacCollection>();
-        
+
         // public Dictionary<string, StacItem> Items { get; private set; } = new Dictionary<string, StacItem>();
         private List<Models.File> GetFiles()
         {
@@ -36,7 +40,7 @@ namespace GeoCop.Api
             return Enumerable.Range(1, 2).Select(SeededFile).ToList();
         }
 
-        private List<Delivery> GetDeliveries()
+        private List<Delivery> GetDeliveries(Operat operat)
         {
             var deliveryIds = 1;
             Random random = new Random();
@@ -46,6 +50,8 @@ namespace GeoCop.Api
                 .RuleFor(c => c.Id, f => random.Next(1000) + deliveryIds++)
                 .RuleFor(c => c.Name, f => f.Random.Word())
                 .RuleFor(c => c.Description, f => f.Random.Words())
+                .RuleFor(c => c.Operat, f => operat)
+                .RuleFor(c => c.Geometry, f => Extent.GetDefault().AsGeometry())
                 .RuleFor(c => c.UploadDate, f => f.Date.Past())
                 .RuleFor(c => c.Files, f => GetFiles());
             Delivery SeededDelivery(int seed) => fakeDeliveries.UseSeed(seed).Generate();
@@ -62,13 +68,14 @@ namespace GeoCop.Api
                 .RuleFor(c => c.Id, f => operatIds++)
                 .RuleFor(c => c.Name, f => f.Random.Word())
                 .RuleFor(c => c.Description, f => f.Random.Words())
-                .RuleFor(c => c.Deliveries, f => GetDeliveries())
+                .RuleFor(c => c.Deliveries, f => new List<Delivery>())
                 .RuleFor(c => c.Extent, f => new Extent { XMin = 5.96F, YMin = 45.82F, XMax = 10.49F, YMax = 47.81F });
             Operat SeededOperat(int seed) => fakeOperats.UseSeed(seed).Generate();
             var operats = operatRange.Select(SeededOperat).ToList();
-            operats.ForEach(o =>
+            operats.ForEach(operat =>
             {
-                var collection = o.ConvertToStacCollection();
+                operat.Deliveries = GetDeliveries(operat);
+                var collection = StacConverter.ToStacCollection(operat);
                 Collections.Add(collection.Id, collection);
             });
             return operats;
