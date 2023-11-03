@@ -3,7 +3,6 @@ using Stac.Api.Interfaces;
 using Stac.Api.Services.Debugging;
 using Stac.Api.Services.Default;
 using Stac.Api.WebApi.Extensions;
-using Stac.Api.WebApi.Patterns.CollectionBased;
 using Stac.Api.WebApi.Services;
 using Stac.Api.WebApi.Services.Context;
 
@@ -42,7 +41,7 @@ namespace GeoCop.Api.StacServices
             services.AddSingleton<IStacApiContextFilter, DebugContextFilter>();
 
             // Register the default collections provider
-            services.AddSingleton<IStacLinker, CollectionBasedStacLinker>();
+            services.AddSingleton<IStacLinker, StacLinker>();
 
             // Add the default controllers
             services.AddDefaultControllers();

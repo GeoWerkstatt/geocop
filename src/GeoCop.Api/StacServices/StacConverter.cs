@@ -22,7 +22,7 @@ namespace GeoCop.Api.StacServices
         public StacCollection ToStacCollection(Operat operat)
         {
             var collectionId = operat.Name + "_" + operat.Id;
-            var items = operat.Deliveries.Select(d => ToStacItem(d, collectionId)).ToDictionary(i => i.Links.First(l => l.RelationshipType == "Self").Uri);
+            var items = operat.Deliveries.Select(d => ToStacItem(d, collectionId)).ToDictionary(i => i.Links.Where(l => l.RelationshipType.ToLower() == "self").First().Uri);
             if (items.Values.Count == 0)
             {
                 var defaultExtent = Extent.GetDefault();
