@@ -65,7 +65,7 @@ namespace GeoCop.Api.Models
 
         public static Extent GetDefault()
         {
-            return new Extent { XMin = 5.96F, YMin = 45.82F, XMax = 10.49F, YMax = 47.81F };
+            return new Extent { XMin = 45.82F, YMin = 5.96F, XMax = 47.81F, YMax = 10.49F };
         }
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.

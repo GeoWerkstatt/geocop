@@ -69,7 +69,7 @@ namespace GeoCop.Api
                 .RuleFor(c => c.Name, f => f.Random.Word())
                 .RuleFor(c => c.Description, f => f.Random.Words())
                 .RuleFor(c => c.Deliveries, f => new List<Delivery>())
-                .RuleFor(c => c.Extent, f => new Extent { XMin = 5.96F, YMin = 45.82F, XMax = 10.49F, YMax = 47.81F });
+                .RuleFor(c => c.Extent, f => new Extent { XMin = 45.82F, YMin = 5.96F, XMax = 47.81F, YMax = 10.49F });
             Operat SeededOperat(int seed) => fakeOperats.UseSeed(seed).Generate();
             var operats = operatRange.Select(SeededOperat).ToList();
             operats.ForEach(operat =>
