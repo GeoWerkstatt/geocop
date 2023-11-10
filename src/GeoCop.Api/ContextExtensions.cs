@@ -12,8 +12,6 @@ namespace GeoCop.Api
     {
         public static void SeedTestData(this Context context)
         {
-            var transaction = context.Database.BeginTransaction();
-
             // Set Bogus Data System Clock
             Date.SystemClock = () => DateTime.Parse("01.11.2023 00:00:00", new CultureInfo("de_CH", false));
 
@@ -22,8 +20,6 @@ namespace GeoCop.Api
             context.SeedOperate();
             context.SeedDeliveries();
             context.SeedAssets();
-
-            transaction.Commit();
         }
 
         public static void SeedUsers(this Context context)
